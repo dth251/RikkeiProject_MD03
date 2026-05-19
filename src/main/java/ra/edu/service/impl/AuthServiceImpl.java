@@ -28,8 +28,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public JwtResponse login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
@@ -52,7 +51,7 @@ public class AuthServiceImpl implements AuthService {
     public UserResponse getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        
+
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -61,8 +60,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void logout(String token) {
-        // With stateless JWT, server-side logout usually requires a token blacklist.
-        // For now, we clear the security context. Client is expected to remove token.
         SecurityContextHolder.clearContext();
     }
 }

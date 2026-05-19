@@ -34,6 +34,7 @@ public class LessonController {
     }
 
     @GetMapping("/courses/{course_id}/lessons")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<List<LessonResponse>>> getLessonsByCourseId(@PathVariable("course_id") Long courseId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean teacherOrAdmin = isTeacherOrAdmin(auth);
@@ -41,6 +42,7 @@ public class LessonController {
     }
 
     @GetMapping("/lessons/{lesson_id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<LessonResponse>> getLessonById(@PathVariable("lesson_id") Long lessonId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean teacherOrAdmin = isTeacherOrAdmin(auth);
@@ -48,6 +50,7 @@ public class LessonController {
     }
 
     @GetMapping("/lessons/{lesson_id}/content_preview")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<LessonResponse>> getLessonPreview(@PathVariable("lesson_id") Long lessonId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean teacherOrAdmin = isTeacherOrAdmin(auth);

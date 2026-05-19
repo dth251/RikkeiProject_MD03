@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ra.edu.dto.request.LoginRequest;
 import ra.edu.dto.response.ApiResponse;
@@ -24,17 +25,19 @@ public class AuthController {
     }
 
     @PostMapping("/verify")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Boolean>> verify() {
-        // If request reaches here, JwtAuthenticationFilter already verified the token.
         return ResponseEntity.ok(ApiResponse.success(true, "Token hợp lệ"));
     }
 
     @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser() {
         return ResponseEntity.ok(ApiResponse.success(authService.getCurrentUser(), "Lấy thông tin người dùng thành công"));
     }
 
     @PostMapping("/logout")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {

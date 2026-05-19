@@ -49,7 +49,6 @@ public class JwtUtils {
             Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(authToken);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            // Có thể dùng Logger để ghi lại lỗi ở đây
             System.err.println("Invalid JWT token: " + e.getMessage());
         }
         return false;

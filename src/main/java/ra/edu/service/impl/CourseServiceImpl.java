@@ -34,7 +34,6 @@ public class CourseServiceImpl implements CourseService {
             try {
                 courseStatus = ra.edu.entity.CourseStatus.valueOf(status.toUpperCase());
             } catch (IllegalArgumentException e) {
-                // Ignore invalid status or handle appropriately. Here we just leave it null.
             }
         }
         Page<Course> page = courseRepository.searchCourses(keyword, teacherId, courseStatus, pageable);

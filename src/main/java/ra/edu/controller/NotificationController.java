@@ -22,6 +22,7 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<List<NotificationResponse>>> getMyNotifications() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return ResponseEntity.ok(ApiResponse.success(
@@ -31,6 +32,7 @@ public class NotificationController {
     }
 
     @PutMapping("/{id}/read")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Void>> markAsRead(@PathVariable("id") Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         notificationService.markAsRead(id, auth.getName());

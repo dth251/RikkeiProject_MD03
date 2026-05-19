@@ -23,8 +23,6 @@ public class Lesson {
     @Column(name = "lesson_id")
     private Long lessonId;
 
-    // Khóa ngoại liên kết với bảng Courses (Khóa học)
-    // FetchType.LAZY giúp tối ưu hiệu năng: không query Course khi không cần thiết
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", referencedColumnName = "course_id", nullable = false)
     private Course course;
@@ -55,9 +53,7 @@ public class Lesson {
     @PrePersist
     public void prePersist() {
         if (this.isPublished == null) {
-            this.isPublished = false; // Mặc định là chưa xuất bản
+            this.isPublished = false;
         }
-        // Lưu ý: orderIndex thường được tính toán ở tầng Service
-        // (ví dụ: tìm max(orderIndex) của course hiện tại + 1)
     }
 }

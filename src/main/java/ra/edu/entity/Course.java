@@ -29,8 +29,6 @@ public class Course {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    // Mapping Khóa ngoại (Foreign Key) tới bảng Users
-    // Sử dụng FetchType.LAZY để tối ưu hiệu suất (chỉ query User khi cần thiết)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "teacher_id", referencedColumnName = "user_id", nullable = false)
     private User teacher;
@@ -62,14 +60,13 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<Review> reviews = new java.util.ArrayList<>();
 
-    // Xử lý các giá trị DEFAULT trước khi lưu vào Database lần đầu tiên
     @PrePersist
     public void prePersist() {
         if (this.price == null) {
-            this.price = BigDecimal.ZERO; // DEFAULT 0.00
+            this.price = BigDecimal.ZERO;
         }
         if (this.status == null) {
-            this.status = CourseStatus.DRAFT; // DEFAULT 'DRAFT'
+            this.status = CourseStatus.DRAFT;
         }
     }
 }

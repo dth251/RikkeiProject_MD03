@@ -19,10 +19,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "reviews", uniqueConstraints = {
-        // Đảm bảo mỗi sinh viên chỉ đánh giá một khóa học một lần
         @UniqueConstraint(columnNames = {"course_id", "student_id"})
 })
-// Ràng buộc CHECK để điểm đánh giá luôn từ 1 đến 5 sao
 @Check(constraints = "rating >= 1 AND rating <= 5")
 public class Review {
     @Id
@@ -30,12 +28,10 @@ public class Review {
     @Column(name = "review_id")
     private Long reviewId;
 
-    // Khóa ngoại liên kết với bảng Courses
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", referencedColumnName = "course_id", nullable = false)
     private Course course;
 
-    // Khóa ngoại liên kết với bảng Users (Sinh viên)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id", referencedColumnName = "user_id", nullable = false)
     private User student;

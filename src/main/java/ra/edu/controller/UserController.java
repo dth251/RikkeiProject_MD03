@@ -57,6 +57,7 @@ public class UserController {
     }
 
     @PutMapping("/{user_id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable("user_id") Long userId,
             @Valid @RequestBody UserUpdateRequest request) {
@@ -82,6 +83,7 @@ public class UserController {
     }
 
     @PutMapping("/{user_id}/password")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Void>> updatePassword(
             @PathVariable("user_id") Long userId,
             @Valid @RequestBody UserPasswordUpdateRequest request) {

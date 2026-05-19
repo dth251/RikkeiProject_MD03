@@ -11,7 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService; // <-- Bổ sung import này
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -20,14 +20,12 @@ import ra.edu.config.security.jwt.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // Cho phép dùng @PreAuthorize ở cấp độ method
+@EnableMethodSecurity
 public class SecurityConfig {
 
-    // Đổi CustomUserDetailsService thành Interface UserDetailsService
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    // Đổi tham số trong constructor thành UserDetailsService
     public SecurityConfig(UserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.userDetailsService = userDetailsService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
@@ -56,27 +54,21 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Public APIs
                         .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
 
-                        // ADMIN Endpoints
                         .requestMatchers(HttpMethod.POST, "/api/courses").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/courses/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/courses/**").hasRole("ADMIN")
 
-                        // TEACHER & ADMIN Endpoints
                         .requestMatchers(HttpMethod.POST, "/api/courses/*/lessons").hasAnyRole("TEACHER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/lessons/**").hasAnyRole("TEACHER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/lessons/**").hasAnyRole("TEACHER", "ADMIN")
 
-                        // STUDENT Endpoints
                         .requestMatchers("/api/enrollments/**").hasRole("STUDENT")
 
-                        // AUTH Endpoints (Bất kỳ user nào đã đăng nhập)
                         .requestMatchers(HttpMethod.GET, "/api/courses/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/lessons/**").authenticated()
 
-                        // Các request về /api/users để cấu hình linh hoạt (OWNER_OR_ADMIN) nên xử lý bằng @PreAuthorize ở Controller
                         .requestMatchers("/api/users/**").authenticated()
 
                         .anyRequest().authenticated()

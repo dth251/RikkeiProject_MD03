@@ -26,6 +26,7 @@ public class ReviewController {
     }
 
     @GetMapping("/api/courses/{course_id}/reviews")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<PageResponse<ReviewResponse>>> getCourseReviews(
             @PathVariable("course_id") Long courseId,
             @RequestParam(defaultValue = "1") int page,

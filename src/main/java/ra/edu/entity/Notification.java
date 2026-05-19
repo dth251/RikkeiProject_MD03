@@ -21,7 +21,6 @@ public class Notification {
     @Column(name = "notification_id")
     private Long notificationId;
 
-    // Khóa ngoại liên kết với bảng Users (Người nhận thông báo)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
     private User user;
@@ -43,7 +42,6 @@ public class Notification {
     @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;
 
-    // Thiết lập trạng thái mặc định là chưa đọc khi tạo thông báo mới
     @PrePersist
     public void prePersist() {
         if (this.isRead == null) {

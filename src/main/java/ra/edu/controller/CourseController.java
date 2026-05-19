@@ -24,6 +24,7 @@ public class CourseController {
     private final CourseService courseService;
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<PageResponse<CourseResponse>>> getCourses(
             @RequestParam(required = false) String search,
             @RequestParam(required = false, name = "teacher_id") Long teacherId,
@@ -47,6 +48,7 @@ public class CourseController {
     }
 
     @GetMapping("/{course_id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<CourseResponse>> getCourseById(@PathVariable("course_id") Long courseId) {
         return ResponseEntity.ok(ApiResponse.success(courseService.getCourseById(courseId), "Lấy thông tin khóa học thành công"));
     }

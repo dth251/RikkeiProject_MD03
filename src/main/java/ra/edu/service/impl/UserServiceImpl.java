@@ -68,7 +68,6 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với ID: " + userId));
 
-        // Kiểm tra quyền OWNER_OR_ADMIN
         if (!isAdmin && !user.getUsername().equals(currentUserUsername)) {
             throw new RuntimeException("Bạn không có quyền cập nhật thông tin người dùng này.");
         }
@@ -109,7 +108,6 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với ID: " + userId));
 
-        // Kiểm tra quyền OWNER_OR_ADMIN
         if (!isAdmin && !user.getUsername().equals(currentUserUsername)) {
             throw new RuntimeException("Bạn không có quyền đổi mật khẩu của người dùng này.");
         }
