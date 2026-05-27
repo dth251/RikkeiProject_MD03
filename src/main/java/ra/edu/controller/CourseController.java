@@ -38,6 +38,9 @@ public class CourseController {
         boolean isAdmin = auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         
         if (!isAdmin) {
+            if (status != null && !status.trim().isEmpty() && !"PUBLISHED".equalsIgnoreCase(status.trim())) {
+                throw new ra.edu.config.exception.BadRequestException("Học viên hoặc Giảng viên chỉ được phép xem các khóa học ở trạng thái PUBLISHED.");
+            }
             status = "PUBLISHED";
         }
         

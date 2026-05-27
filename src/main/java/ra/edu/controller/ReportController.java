@@ -22,6 +22,9 @@ public class ReportController {
     @GetMapping("/top_courses")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<TopCourseResponse>>> getTopCourses(@RequestParam(defaultValue = "10") int limit) {
+        if (limit < 1) {
+            throw new ra.edu.config.exception.BadRequestException("Giới hạn (limit) phải lớn hơn hoặc bằng 1.");
+        }
         return ResponseEntity.ok(ApiResponse.success(
                 reportService.getTopCourses(limit),
                 "Lấy danh sách khóa học phổ biến nhất thành công"

@@ -50,6 +50,9 @@ public class Lesson {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<LessonProgress> lessonProgresses = new java.util.ArrayList<>();
+
     @PrePersist
     public void prePersist() {
         if (this.isPublished == null) {

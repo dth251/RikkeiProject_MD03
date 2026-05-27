@@ -9,7 +9,11 @@ import ra.edu.dto.request.CourseStatusUpdateRequest;
 import ra.edu.dto.request.CourseUpdateRequest;
 import ra.edu.dto.response.CourseResponse;
 import ra.edu.dto.response.PageResponse;
+import ra.edu.config.exception.ResourceNotFoundException;
+import ra.edu.config.exception.BadRequestException;
+import ra.edu.config.exception.ConflictException;
 import ra.edu.entity.Course;
+import ra.edu.entity.Role;
 import ra.edu.entity.User;
 import ra.edu.mapper.CourseMapper;
 import ra.edu.repository.CourseRepository;
@@ -29,11 +33,20 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public PageResponse<CourseResponse> getCourses(String keyword, Long teacherId, String status, Pageable pageable) {
+        if (teacherId != null) {
+            User teacher = userRepository.findById(teacherId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên với ID: " + teacherId));
+            if (teacher.getRole() != Role.TEACHER) {
+                throw new BadRequestException("Người dùng với ID " + teacherId + " không phải là giảng viên");
+            }
+        }
+
         ra.edu.entity.CourseStatus courseStatus = null;
         if (status != null && !status.trim().isEmpty()) {
             try {
                 courseStatus = ra.edu.entity.CourseStatus.valueOf(status.toUpperCase());
             } catch (IllegalArgumentException e) {
+                throw new BadRequestException("Trạng thái khóa học không hợp lệ! Chỉ chấp nhận DRAFT, PUBLISHED, hoặc ARCHIVED.");
             }
         }
         Page<Course> page = courseRepository.searchCourses(keyword, teacherId, courseStatus, pageable);
@@ -46,14 +59,17 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseResponse getCourseById(Long courseId) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy khóa học"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khóa học"));
         return courseMapper.toResponse(course);
     }
 
     @Override
     public CourseResponse createCourse(CourseCreateRequest request) {
         User teacher = userRepository.findById(request.getTeacherId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên"));
+        if (teacher.getRole() != Role.TEACHER) {
+            throw new BadRequestException("Người dùng được chọn không phải là giảng viên");
+        }
         Course course = courseMapper.toEntity(request, teacher);
         course = courseRepository.save(course);
         return courseMapper.toResponse(course);
@@ -62,7 +78,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseResponse updateCourse(Long courseId, CourseUpdateRequest request) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy khóa học"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khóa học"));
         course.setTitle(request.getTitle());
         course.setDescription(request.getDescription());
         course.setPrice(request.getPrice());
@@ -74,7 +90,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseResponse updateCourseStatus(Long courseId, CourseStatusUpdateRequest request) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy khóa học"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khóa học"));
         course.setStatus(request.getStatus());
         course = courseRepository.save(course);
         return courseMapper.toResponse(course);
@@ -82,8 +98,10 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public void deleteCourse(Long courseId) {
-        if (!courseRepository.existsById(courseId)) {
-            throw new RuntimeException("Không tìm thấy khóa học");
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khóa học"));
+        if (course.getEnrollments() != null && !course.getEnrollments().isEmpty()) {
+            throw new ConflictException("Không thể xóa khóa học đã có học viên đăng ký");
         }
         courseRepository.deleteById(courseId);
     }

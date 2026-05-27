@@ -3,14 +3,27 @@ package ra.edu.mapper;
 import org.springframework.stereotype.Component;
 import ra.edu.dto.request.CourseCreateRequest;
 import ra.edu.dto.response.CourseResponse;
+import ra.edu.dto.response.LessonResponse;
 import ra.edu.entity.Course;
 import ra.edu.entity.User;
 
 @Component
+@lombok.RequiredArgsConstructor
 public class CourseMapper {
+    private final LessonMapper lessonMapper;
 
     public CourseResponse toResponse(Course course) {
         if (course == null) return null;
+
+        java.util.List<LessonResponse> lessonResponses = null;
+        if (course.getLessons() != null) {
+            lessonResponses = course.getLessons().stream()
+                    .filter(l -> l.getIsPublished() != null && l.getIsPublished())
+                    .sorted(java.util.Comparator.comparing(l -> l.getOrderIndex() != null ? l.getOrderIndex() : 0))
+                    .map(lessonMapper::toResponse)
+                    .collect(java.util.stream.Collectors.toList());
+        }
+
         return CourseResponse.builder()
                 .courseId(course.getCourseId())
                 .title(course.getTitle())
@@ -22,6 +35,7 @@ public class CourseMapper {
                 .status(course.getStatus())
                 .createdAt(course.getCreatedAt())
                 .updatedAt(course.getUpdatedAt())
+                .lessons(lessonResponses)
                 .build();
     }
 

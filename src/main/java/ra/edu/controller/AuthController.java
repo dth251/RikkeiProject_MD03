@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ra.edu.dto.request.LoginRequest;
+import ra.edu.dto.request.RegisterRequest;
 import ra.edu.dto.response.ApiResponse;
 import ra.edu.dto.response.JwtResponse;
 import ra.edu.dto.response.UserResponse;
@@ -22,6 +23,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<JwtResponse>> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(ApiResponse.success(authService.login(request), "Đăng nhập thành công"));
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest request) {
+        return ResponseEntity.status(201).body(ApiResponse.success(authService.register(request), "Đăng ký tài khoản thành công"));
     }
 
     @PostMapping("/verify")

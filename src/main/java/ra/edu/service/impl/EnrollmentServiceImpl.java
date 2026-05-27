@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ra.edu.dto.request.EnrollmentCreateRequest;
 import ra.edu.dto.response.EnrollmentResponse;
 import ra.edu.entity.*;
+import ra.edu.config.exception.BadRequestException;
 import ra.edu.config.exception.ConflictException;
 import ra.edu.config.exception.ResourceNotFoundException;
 import ra.edu.mapper.EnrollmentMapper;
@@ -44,7 +45,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khóa học"));
 
         if (!course.getStatus().equals(CourseStatus.PUBLISHED)) {
-            throw new ConflictException("Khóa học chưa được xuất bản");
+            throw new BadRequestException("Khóa học chưa được xuất bản");
         }
 
         if (enrollmentRepository.existsByStudentUserIdAndCourseCourseId(student.getUserId(), course.getCourseId())) {

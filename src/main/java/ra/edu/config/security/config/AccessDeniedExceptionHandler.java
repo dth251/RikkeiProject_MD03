@@ -41,7 +41,7 @@ public class AccessDeniedExceptionHandler implements AccessDeniedHandler {
         body.put("success", false);
         body.put("message", "Bạn không có quyền truy cập tài nguyên này.");
         body.put("data", null);
-        body.put("errors", accessDeniedException.getMessage());
+        body.put("errors", "Yêu cầu bị từ chối do không đủ quyền hạn.");
         body.put("timestamp", LocalDateTime.now().toString());
 
         ObjectMapper mapper = new ObjectMapper();

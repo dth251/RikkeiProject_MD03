@@ -1,5 +1,6 @@
 package ra.edu.dto.request;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -12,5 +13,6 @@ public class LessonCreateRequest {
 
     private String textContent;
 
+    @Min(value = 0, message = "Thứ tự bài học không được âm")
     private Integer orderIndex;
 }

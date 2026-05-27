@@ -25,10 +25,17 @@ public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AuthenticationEntryPointHandler authenticationEntryPointHandler;
+    private final AccessDeniedExceptionHandler accessDeniedExceptionHandler;
 
-    public SecurityConfig(UserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(UserDetailsService userDetailsService,
+                          JwtAuthenticationFilter jwtAuthenticationFilter,
+                          AuthenticationEntryPointHandler authenticationEntryPointHandler,
+                          AccessDeniedExceptionHandler accessDeniedExceptionHandler) {
         this.userDetailsService = userDetailsService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.authenticationEntryPointHandler = authenticationEntryPointHandler;
+        this.accessDeniedExceptionHandler = accessDeniedExceptionHandler;
     }
 
     @Bean
@@ -53,6 +60,9 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authenticationEntryPointHandler)
+                        .accessDeniedHandler(accessDeniedExceptionHandler))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
 

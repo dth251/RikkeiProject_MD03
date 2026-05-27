@@ -31,11 +31,11 @@ public class NotificationController {
         ));
     }
 
-    @PutMapping("/{id}/read")
+    @PutMapping("/{notification_id}/read")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Void>> markAsRead(@PathVariable("id") Long id) {
+    public ResponseEntity<ApiResponse<Void>> markAsRead(@PathVariable("notification_id") Long notificationId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        notificationService.markAsRead(id, auth.getName());
+        notificationService.markAsRead(notificationId, auth.getName());
         return ResponseEntity.ok(ApiResponse.success(null, "Đánh dấu đã đọc thành công"));
     }
 
@@ -48,10 +48,10 @@ public class NotificationController {
         ));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{notification_id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> deleteNotification(@PathVariable("id") Long id) {
-        notificationService.deleteNotification(id);
+    public ResponseEntity<ApiResponse<Void>> deleteNotification(@PathVariable("notification_id") Long notificationId) {
+        notificationService.deleteNotification(notificationId);
         return ResponseEntity.ok(ApiResponse.success(null, "Xóa thông báo thành công"));
     }
 }

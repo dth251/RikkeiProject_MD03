@@ -14,6 +14,7 @@ import ra.edu.dto.request.*;
 import ra.edu.dto.response.ApiResponse;
 import ra.edu.dto.response.PageResponse;
 import ra.edu.dto.response.UserResponse;
+import ra.edu.entity.Role;
 import ra.edu.service.UserService;
 
 @RestController
@@ -27,21 +28,36 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<PageResponse<UserResponse>>> getAllUsers(
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) String role,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "userId") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
         
         Boolean isActive = null;
-        if (status != null && !status.isEmpty()) {
-            if ("active".equalsIgnoreCase(status)) isActive = true;
-            else if ("inactive".equalsIgnoreCase(status)) isActive = false;
+        if (status != null && !status.trim().isEmpty()) {
+            if ("active".equalsIgnoreCase(status)) {
+                isActive = true;
+            } else if ("inactive".equalsIgnoreCase(status)) {
+                isActive = false;
+            } else {
+                throw new ra.edu.config.exception.BadRequestException("Trạng thái không hợp lệ! Chỉ chấp nhận 'active' hoặc 'inactive'.");
+            }
+        }
+
+        Role userRole = null;
+        if (role != null && !role.isEmpty()) {
+            try {
+                userRole = Role.valueOf(role.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new ra.edu.config.exception.BadRequestException("Vai trò không hợp lệ! Chỉ chấp nhận ADMIN, TEACHER, hoặc STUDENT.");
+            }
         }
 
         Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
         
-        return ResponseEntity.ok(ApiResponse.success(userService.getAllUsers(isActive, pageable), "Lấy danh sách người dùng thành công"));
+        return ResponseEntity.ok(ApiResponse.success(userService.getAllUsers(isActive, userRole, pageable), "Lấy danh sách người dùng thành công"));
     }
 
     @GetMapping("/{user_id}")
@@ -71,7 +87,8 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponse>> updateUserRole(
             @PathVariable("user_id") Long userId,
             @Valid @RequestBody UserRoleUpdateRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(userService.updateUserRole(userId, request), "Cập nhật quyền thành công"));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(ApiResponse.success(userService.updateUserRole(userId, request, auth.getName()), "Cập nhật quyền thành công"));
     }
 
     @PutMapping("/{user_id}/status")
@@ -79,7 +96,8 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponse>> updateUserStatus(
             @PathVariable("user_id") Long userId,
             @Valid @RequestBody UserStatusUpdateRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(userService.updateUserStatus(userId, request), "Cập nhật trạng thái thành công"));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(ApiResponse.success(userService.updateUserStatus(userId, request, auth.getName()), "Cập nhật trạng thái thành công"));
     }
 
     @PutMapping("/{user_id}/password")
@@ -96,7 +114,8 @@ public class UserController {
     @DeleteMapping("/{user_id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable("user_id") Long userId) {
-        userService.deleteUser(userId);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        userService.deleteUser(userId, auth.getName());
         return ResponseEntity.ok(ApiResponse.success(null, "Xóa người dùng thành công"));
     }
 }

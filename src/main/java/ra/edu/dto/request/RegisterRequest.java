@@ -4,10 +4,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import ra.edu.entity.Role;
 
 @Data
-public class UserCreateRequest {
+public class RegisterRequest {
     @NotBlank(message = "Username không được để trống")
     @Size(min = 6, message = "Tên đăng nhập phải từ 6 ký tự trở lên")
     private String username;
@@ -22,6 +21,4 @@ public class UserCreateRequest {
 
     @NotBlank(message = "Họ tên không được để trống")
     private String fullName;
-
-    private Role role;
 }

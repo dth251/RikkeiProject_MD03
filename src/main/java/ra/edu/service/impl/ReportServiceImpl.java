@@ -9,9 +9,14 @@ import ra.edu.dto.response.TeacherCourseOverviewResponse;
 import ra.edu.dto.response.TopCourseResponse;
 import ra.edu.entity.Course;
 import ra.edu.entity.Enrollment;
+import ra.edu.entity.Role;
+import ra.edu.entity.User;
 import ra.edu.repository.CourseRepository;
 import ra.edu.repository.EnrollmentRepository;
+import ra.edu.repository.UserRepository;
 import ra.edu.service.ReportService;
+import ra.edu.config.exception.ResourceNotFoundException;
+import ra.edu.config.exception.BadRequestException;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -23,6 +28,7 @@ public class ReportServiceImpl implements ReportService {
 
     private final CourseRepository courseRepository;
     private final EnrollmentRepository enrollmentRepository;
+    private final UserRepository userRepository;
 
     @Override
     public List<TopCourseResponse> getTopCourses(int limit) {
@@ -39,6 +45,12 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public List<StudentProgressReportResponse> getStudentProgress(Long studentId) {
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sinh viên với ID: " + studentId));
+        if (student.getRole() != Role.STUDENT) {
+            throw new BadRequestException("Người dùng với ID " + studentId + " không phải là sinh viên");
+        }
+
         List<Enrollment> enrollments = enrollmentRepository.findByStudentUserId(studentId);
         return enrollments.stream()
                 .map(enrollment -> StudentProgressReportResponse.builder()
@@ -52,6 +64,12 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public List<TeacherCourseOverviewResponse> getTeacherCoursesOverview(Long teacherId) {
+        User teacher = userRepository.findById(teacherId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên với ID: " + teacherId));
+        if (teacher.getRole() != Role.TEACHER) {
+            throw new BadRequestException("Người dùng với ID " + teacherId + " không phải là giảng viên");
+        }
+
         List<Course> courses = courseRepository.findByTeacherUserId(teacherId);
         return courses.stream()
                 .map(course -> {
@@ -65,7 +83,7 @@ public class ReportServiceImpl implements ReportService {
                             .totalStudents(studentsCount)
                             .estimatedRevenue(estimatedRevenue)
                             .build();
-                })
+                        })
                 .collect(Collectors.toList());
     }
 }

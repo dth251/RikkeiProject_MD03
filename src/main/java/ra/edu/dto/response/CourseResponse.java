@@ -24,4 +24,5 @@ public class CourseResponse {
     private CourseStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private java.util.List<LessonResponse> lessons;
 }
