@@ -12,7 +12,7 @@ import ra.edu.entity.Course;
 public interface CourseRepository extends JpaRepository<Course, Long> {
 
     @Query("SELECT c FROM Course c WHERE " +
-           "(:keyword IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(c.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
+           "(CAST(:keyword AS string) IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%')) OR LOWER(c.description) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%'))) AND " +
            "(:teacherId IS NULL OR c.teacher.userId = :teacherId) AND " +
            "(:status IS NULL OR c.status = :status)")
     Page<Course> searchCourses(@Param("keyword") String keyword, @Param("teacherId") Long teacherId, @Param("status") ra.edu.entity.CourseStatus status, Pageable pageable);
