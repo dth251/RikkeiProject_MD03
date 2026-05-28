@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import ra.edu.config.exception.BadRequestException;
 import ra.edu.dto.request.*;
 import ra.edu.dto.response.ApiResponse;
 import ra.edu.dto.response.PageResponse;
@@ -41,7 +42,7 @@ public class UserController {
             } else if ("inactive".equalsIgnoreCase(status)) {
                 isActive = false;
             } else {
-                throw new ra.edu.config.exception.BadRequestException("Trạng thái không hợp lệ! Chỉ chấp nhận 'active' hoặc 'inactive'.");
+                throw new BadRequestException("Trạng thái không hợp lệ! Chỉ chấp nhận 'active' hoặc 'inactive'.");
             }
         }
 
@@ -50,7 +51,7 @@ public class UserController {
             try {
                 userRole = Role.valueOf(role.toUpperCase());
             } catch (IllegalArgumentException e) {
-                throw new ra.edu.config.exception.BadRequestException("Vai trò không hợp lệ! Chỉ chấp nhận ADMIN, TEACHER, hoặc STUDENT.");
+                throw new BadRequestException("Vai trò không hợp lệ! Chỉ chấp nhận ADMIN, TEACHER, hoặc STUDENT.");
             }
         }
 

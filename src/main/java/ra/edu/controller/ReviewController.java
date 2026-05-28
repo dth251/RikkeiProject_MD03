@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import ra.edu.config.exception.BadRequestException;
 import ra.edu.dto.request.ReviewCreateRequest;
 import ra.edu.dto.request.ReviewUpdateRequest;
 import ra.edu.dto.response.ApiResponse;
@@ -32,10 +33,10 @@ public class ReviewController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         if (page < 1) {
-            throw new ra.edu.config.exception.BadRequestException("Số trang (page) phải lớn hơn hoặc bằng 1.");
+            throw new BadRequestException("Số trang (page) phải lớn hơn hoặc bằng 1.");
         }
         if (size < 1) {
-            throw new ra.edu.config.exception.BadRequestException("Kích thước trang (size) phải lớn hơn hoặc bằng 1.");
+            throw new BadRequestException("Kích thước trang (size) phải lớn hơn hoặc bằng 1.");
         }
         return ResponseEntity.ok(ApiResponse.success(
                 reviewService.getCourseReviews(courseId, page, size),

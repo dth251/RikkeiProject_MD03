@@ -13,6 +13,7 @@ import ra.edu.config.exception.ResourceNotFoundException;
 import ra.edu.config.exception.BadRequestException;
 import ra.edu.config.exception.ConflictException;
 import ra.edu.entity.Course;
+import ra.edu.entity.CourseStatus;
 import ra.edu.entity.Role;
 import ra.edu.entity.User;
 import ra.edu.mapper.CourseMapper;
@@ -41,10 +42,10 @@ public class CourseServiceImpl implements CourseService {
             }
         }
 
-        ra.edu.entity.CourseStatus courseStatus = null;
+        CourseStatus courseStatus = null;
         if (status != null && !status.trim().isEmpty()) {
             try {
-                courseStatus = ra.edu.entity.CourseStatus.valueOf(status.toUpperCase());
+                courseStatus = CourseStatus.valueOf(status.toUpperCase());
             } catch (IllegalArgumentException e) {
                 throw new BadRequestException("Trạng thái khóa học không hợp lệ! Chỉ chấp nhận DRAFT, PUBLISHED, hoặc ARCHIVED.");
             }

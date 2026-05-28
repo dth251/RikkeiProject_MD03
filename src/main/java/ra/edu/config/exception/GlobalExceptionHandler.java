@@ -1,7 +1,10 @@
 package ra.edu.config.exception;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,6 +15,9 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static java.util.Arrays.stream;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -42,16 +48,16 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(message, "Định dạng tham số không hợp lệ"));
     }
 
-    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(org.springframework.http.converter.HttpMessageNotReadableException ex) {
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         String message = "Dữ liệu yêu cầu không đúng định dạng hoặc giá trị không hợp lệ.";
-        if (ex.getCause() instanceof com.fasterxml.jackson.databind.exc.InvalidFormatException) {
-            com.fasterxml.jackson.databind.exc.InvalidFormatException ife = (com.fasterxml.jackson.databind.exc.InvalidFormatException) ex.getCause();
+        if (ex.getCause() instanceof InvalidFormatException) {
+            InvalidFormatException ife = (InvalidFormatException) ex.getCause();
             if (ife.getTargetType().isEnum()) {
                 Object[] enumConstants = ife.getTargetType().getEnumConstants();
-                java.util.List<String> acceptedValues = java.util.Arrays.stream(enumConstants)
+                java.util.List<String> acceptedValues = stream(enumConstants)
                         .map(Object::toString)
-                        .collect(java.util.stream.Collectors.toList());
+                        .collect(Collectors.toList());
                 message = String.format("Giá trị '%s' không hợp lệ. Chỉ chấp nhận các giá trị: %s", 
                         ife.getValue(), String.join(", ", acceptedValues));
             }
@@ -72,8 +78,8 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getMessage(), "Xung đột dữ liệu"));
     }
 
-    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
-    public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(org.springframework.security.access.AccessDeniedException ex) {
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(AccessDeniedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ApiResponse.error(ex.getMessage(), "Yêu cầu bị từ chối do không đủ quyền hạn."));
     }

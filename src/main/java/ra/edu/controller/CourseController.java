@@ -7,7 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import ra.edu.config.exception.BadRequestException;
 import ra.edu.dto.request.CourseCreateRequest;
 import ra.edu.dto.request.CourseStatusUpdateRequest;
 import ra.edu.dto.request.CourseUpdateRequest;
@@ -34,12 +37,12 @@ public class CourseController {
             @RequestParam(defaultValue = "courseId") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
         
-        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdmin = auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         
         if (!isAdmin) {
             if (status != null && !status.trim().isEmpty() && !"PUBLISHED".equalsIgnoreCase(status.trim())) {
-                throw new ra.edu.config.exception.BadRequestException("Học viên hoặc Giảng viên chỉ được phép xem các khóa học ở trạng thái PUBLISHED.");
+                throw new BadRequestException("Học viên hoặc Giảng viên chỉ được phép xem các khóa học ở trạng thái PUBLISHED.");
             }
             status = "PUBLISHED";
         }

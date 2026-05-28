@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import ra.edu.config.exception.BadRequestException;
 import ra.edu.dto.response.ApiResponse;
 import ra.edu.dto.response.StudentProgressReportResponse;
 import ra.edu.dto.response.TeacherCourseOverviewResponse;
@@ -23,7 +24,7 @@ public class ReportController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<TopCourseResponse>>> getTopCourses(@RequestParam(defaultValue = "10") int limit) {
         if (limit < 1) {
-            throw new ra.edu.config.exception.BadRequestException("Giới hạn (limit) phải lớn hơn hoặc bằng 1.");
+            throw new BadRequestException("Giới hạn (limit) phải lớn hơn hoặc bằng 1.");
         }
         return ResponseEntity.ok(ApiResponse.success(
                 reportService.getTopCourses(limit),

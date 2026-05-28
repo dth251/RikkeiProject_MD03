@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -49,9 +51,9 @@ public class AuthenticationEntryPointHandler implements AuthenticationEntryPoint
             body.put("message", "Bạn cần đăng nhập hoặc cung cấp Token hợp lệ để truy cập tài nguyên này.");
             
             String errorMessage = "Yêu cầu xác thực không thành công.";
-            if (authException instanceof org.springframework.security.authentication.InsufficientAuthenticationException) {
+            if (authException instanceof InsufficientAuthenticationException) {
                 errorMessage = "Yêu cầu xác thực đầy đủ để truy cập tài nguyên này.";
-            } else if (authException instanceof org.springframework.security.authentication.BadCredentialsException) {
+            } else if (authException instanceof BadCredentialsException) {
                 errorMessage = "Tên đăng nhập hoặc mật khẩu không chính xác.";
             } else if (authException != null && authException.getMessage() != null) {
                 errorMessage = authException.getMessage();
